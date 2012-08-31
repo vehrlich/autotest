@@ -36,6 +36,7 @@ spice-xpi
 virt-viewer
 spice-vdagent
 usbredir
+totem
 
 %post --interpreter /usr/bin/python
 import os
