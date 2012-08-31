@@ -29,7 +29,7 @@ variants:
         variants:
             - @no_ssl:
                 spice_ssl = no
-                spice_port = 3000
+                #spice_port = 3000
             - bad_port:
                 spice_port = -1
             - ssl:
@@ -172,7 +172,6 @@ variants:
         only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
         only unattended_install.cdrom
 
-
     - qemu_kvm_rhel63_install_guest:
         # Use this only when you need to create rhel63 image qcow
         qemu_binary = /usr/libexec/qemu-kvm
@@ -254,6 +253,48 @@ variants:
         only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.bad_port.no_password.1monitor, spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.bad_ic.no_ssl.no_password.1monitor, spice.default_ipv.default_pc.default_sv.default_zlib_wc.bad_jpeg_wc.default_ic.no_ssl.no_password.1monitor, spice.default_ipv.default_pc.default_sv.bad_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor, spice.default_ipv.default_pc.bad_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor, spice.default_ipv.bad_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
         only negative_create
 
+    - @rv_connect_rhel63:
+        qemu_binary = /usr/libexec/qemu-kvm
+        qemu_img_binary = /usr/bin/qemu-img
+        qemu_io_binary = /usr/bin/qemu-io
+        rv_binary = /usr/bin/remote-viewer
+        used_mem = 1024
+        kill_vm = no
+        only qcow2
+        only e1000
+        only ide
+        only up
+        only no_9p_export
+        only no_pci_assignable
+        only smallpages
+        only Linux.RHEL.6.3.x86_64
+        only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
+        only rv_connect.RHEL.6.3.x86_64
+
+    - @migrate_rhel63:
+        qemu_binary = /usr/libexec/qemu-kvm
+        qemu_img_binary = /usr/bin/qemu-img
+        qemu_io_binary = /usr/bin/qemu-io
+        guest_vm = vm1
+        client_vm = vm2
+        display_vm2 = vnc
+        vga_vm2 = cirrus
+        migrate_background = yes
+        iterations = 1
+        kill_vm = no
+        vms = vm1 vm2
+        image_name_vm2 = /home/vehrlich/kvm_autotest_root/images/rhel63-64_client
+        only qcow2
+        only e1000
+        only ide
+        only up
+        only no_9p_export
+        only no_pci_assignable
+        only smallpages
+        only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
+        only Linux.RHEL.6.3.x86_64
+        only migrate.default.tcp
+
     - @rv_disconnect_rhel63:
         qemu_binary = /usr/libexec/qemu-kvm
         qemu_img_binary = /usr/bin/qemu-img
@@ -268,7 +309,37 @@ variants:
         only smallpages
         only Linux.RHEL.6.3.x86_64
         only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
-        only start, rv_connect.RHEL.6.3.x86_64, rv_disconnect.RHEL.6.3.x86_64, shutdown
+        only rv_disconnect.RHEL.6.3.x86_64, shutdown
+
+    -@rv_video_rhel63:
+        qemu_binary = /usr/libexec/qemu-kvm
+        qemu_img_binary = /usr/bin/qemu-img
+        qemu_io_binary = /usr/bin/qemu-io
+        only qcow2
+        only e1000
+        only ide
+        only up
+        only no_9p_export
+        only no_pci_assignable
+        only smallpages
+        only Linux.RHEL.6.3.x86_64
+        only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
+        only rv_video.RHEL.6.3.x86_64.fullscreen.no_loop
+
+    -@rv_video_close_rhel63:
+        qemu_binary = /usr/libexec/qemu-kvm
+        qemu_img_binary = /usr/bin/qemu-img
+        qemu_io_binary = /usr/bin/qemu-io
+        only qcow2
+        only e1000
+        only ide
+        only up
+        only no_9p_export
+        only no_pci_assignable
+        only smallpages
+        only Linux.RHEL.6.3.x86_64
+        only spice.default_ipv.default_pc.default_sv.default_zlib_wc.default_jpeg_wc.default_ic.no_ssl.no_password.1monitor
+        only rv_video_close.RHEL.6.3.x86_64
 
 variants:
     - Create_VMs:
@@ -281,14 +352,19 @@ variants:
         only remote_viewer_rhel63_quick
     - Remote_Viewer_WinGuest_Test:
         only remote_viewer_win_guest_quick
+    - Remote_Viewer_Connect_Test:
+        only rv_connect_rhel63
+    - Remote_Viewer_Video_Test:
+        only rv_video_rhel63
+    - Migration_Test:
+        only migrate_rhel63
+    - Remote_Viewer_Video_Test_End:
+        only rv_video_close_rhel63
+    - Remote_Viewer_WinGuest_Test:
+        only remote_viewer_win_guest_quick
     - Remote_Viewer_Disconnect_Test:
         only rv_disconnect_rhel63
     - Remote_Viewer_SSL_Test:
         only remote_viewer_rhel63ssl
 
-only Create_VMs, Install_Win_Guest, Negative_QEMU_Spice_Creation_Tests, Remote_Viewer_Test, Remote_Viewer_SSL_Test, Remote_Viewer_WinGuest_Test, Remote_Viewer_Disconnect_Test
-
-# Choose your test list from the testsets defined
-# the following is for remote viewer tests with the setup of a rhel client, and a windows guest
-#only qemu_kvm_windows_install_guest, qemu_kvm_rhel63_install_client, remote_viewer_win_guest_quick 
-#only qemu_kvm_rhel63_install_guest, qemu_kvm_rhel63_install_client, remote_viewer_rhel63_quick, rv_disconnect_rhel63, spice_negative_rhel63_all
+only Create_VMs, Install_Win_Guest, Negative_QEMU_Spice_Creation_Tests, Remote_Viewer_Test, Remote_Viewer_SSL_Test, Remote_Viewer_WinGuest_Test, Remote_Viewer_Connect_Test, Remote_Viewer_Video_Test, Migration_Test, Remote_Viewer_Video_Test_End, Remote_Viewer_Disconnect_Test
