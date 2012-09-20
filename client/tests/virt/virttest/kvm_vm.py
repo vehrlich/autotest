@@ -404,11 +404,12 @@ class VM(virt_vm.BaseVM):
         def add_cdrom(hlp, filename, index=None, fmt=None, bus=None,
                       port=None):
             if has_option(hlp, "drive"):
-                name = None;
-                dev = "";
+                name = None
+                dev = ""
                 if fmt == "ahci":
                     name = "ahci%s" % index
-                    dev += " -device ide-drive,bus=ahci.%s,drive=%s" % (index, name)
+                    dev += " -device ide-drive,bus=ahci.%s,drive=%s" % (
+                                                            index, name)
                     fmt = "none"
                     index = None
                 if fmt in ['usb1', 'usb2', 'usb3']:
@@ -531,8 +532,8 @@ class VM(virt_vm.BaseVM):
             cmd += _add_option("readonly", readonly, bool)
             return cmd + dev
 
-        def add_nic(hlp, vlan, model=None, mac=None, device_id=None, netdev_id=None,
-                    nic_extra_params=None):
+        def add_nic(hlp, vlan, model=None, mac=None, device_id=None, 
+                    netdev_id=None, nic_extra_params=None):
             if model == 'none':
                 return ''
             if has_option(hlp, "netdev"):
@@ -667,26 +668,33 @@ class VM(virt_vm.BaseVM):
             def set_value(opt_string, key, fallback=None):
                 """just a helper function"""
                 tmp = optget(key)
+
                 if tmp:
                     spice_opts.append(opt_string % tmp)
                 elif fallback:
                     spice_opts.append(fallback)
             s_port = str(utils_misc.find_free_port(*port_range))
-            set_value("port=%s", "spice_port", "port=%s" % s_port)
-            if optget("spice_port") == None:
+
+            if optget("spice_port") == "generate":
                 self.spice_options['spice_port'] = s_port
+                spice_opts.append("port=%s" % s_port)
+            else:
+                set_value("port=%s", "spice_port")
 
             set_value("password=%s", "spice_password", "disable-ticketing")
-            set_yes_no_value("disable_copy_paste", yes_value="disable-copy-paste")
+            set_yes_no_value("disable_copy_paste", 
+                             yes_value="disable-copy-paste")
             set_value("addr=%s", "spice_addr")
 
             if optget("spice_ssl") == "yes":
                 # SSL only part
                 t_port = str(utils_misc.find_free_port(*tls_port_range))
-                set_value("tls-port=%s", "spice_tls_port",
-                          "tls-port=%s" % t_port)
-                if optget("spice_tls_port") == None:
+
+                if optget("spice_tls_port") == "generate":
                     self.spice_options['spice_tls_port'] = t_port
+                    spice_opts.append("tls-port=%s" % t_port)
+                else:
+                    set_value("tls-port=%s", "spice_tls_port")
 
                 prefix = optget("spice_x509_prefix")
                 if (not os.path.exists(prefix) and
@@ -1024,7 +1032,7 @@ class VM(virt_vm.BaseVM):
                     raise virt_vm.VMError("cfg: drive_bus have to be an "
                                           "integer. (%s)" % image_name)
                 for i in range(len(virtio_scsi_pcis), bus + 1):
-                    hba = params.get("scsi_hba", "virtio-scsi-pci");
+                    hba = params.get("scsi_hba", "virtio-scsi-pci")
                     qemu_cmd += " -device %s,id=virtio_scsi_pci%d" % (hba, i)
                     virtio_scsi_pcis.append("virtio_scsi_pci%d" % i)
 
@@ -1867,7 +1875,7 @@ class VM(virt_vm.BaseVM):
                 except OSError:
                     pass
             if free_mac_addresses:
-                for nic_index in xrange(0,len(self.virtnet)):
+                for nic_index in xrange(0, len(self.virtnet)):
                     self.free_mac_address(nic_index)
 
 
@@ -2026,7 +2034,7 @@ class VM(virt_vm.BaseVM):
         return self.virtnet[nic_name]
 
     @error.context_aware
-    def hotunplug_nic(self,nic_index_or_name):
+    def hotunplug_nic(self, nic_index_or_name):
         """
         Convenience method wrapper for del/deactivate nic and netdev.
         """
@@ -2605,7 +2613,7 @@ class VM(virt_vm.BaseVM):
         Override BaseVM restore_from_file method
         """
         self.verify_status('paused') # Throws exception if not
-        logging.debug("Restoring VM %s from %s" % (self.name,path))
+        logging.debug("Restoring VM %s from %s" % (self.name, path))
         # Rely on create() in incoming migration mode to do the 'right thing'
         self.create(name=self.name, params=self.params, root_dir=self.root_dir,
                     timeout=self.MIGRATE_TIMEOUT, migration_mode="exec",
