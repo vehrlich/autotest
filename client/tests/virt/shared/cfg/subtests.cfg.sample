@@ -2624,7 +2624,6 @@ variants:
         virtio_port_chardev_vm1 = "spicevmc"
         virtio_port_name_prefix_vm1 = "com.redhat.spice."
 
-
         variants:
             - RHEL:
                 variants:
@@ -2634,7 +2633,21 @@ variants:
                         image_name_vm2 = rhel63-64_client
                     -6.3.i386:
                         image_name_vm2 = rhel63-32_client
-
+            - Fedora:
+                variants:
+                    # This is current solution of handling
+                    # multiple guests running exact same OS
+                    -17.64:
+                        image_name_vm2 = 17-64_client
+                    -17.32:
+                        image_name_vm2 = 17-32_client
+            - Windows:
+                os_type_vm2 = linux
+                shell_prompt_vm2 = ^\[.*\][\#\$]\s*$
+                shell_client_vm2 = ssh
+                username_vm2 = root
+                shell_port_vm2 = 22
+                status_test_command_vm2 = echo $?
 
     - rv_copyandpaste: rv_connect
         type = rv_copyandpaste
@@ -2663,20 +2676,39 @@ variants:
         virtio_port_chardev_vm1 = "spicevmc"
         virtio_port_name_prefix_vm1 = "com.redhat.spice."
 
+    - rv_video:
+        type = rv_video
+        vms = vm1 vm2
+        guest_vm = vm1
+        client_vm = vm2
+        image_name_vm2 = client_vm
+        display_vm2 = vnc
+        vga_vm2 = cirrus
+        source_video_file="autotest/client/virt/deps/video_sample_test.ogv"
+        video_file="/tmp/video_sample_test.ogv"
 
         variants:
+            - loop:
+                repeat = yes
+            - no_loop:
+                repeat = no
+        variants:
+            - no_fullscreen:
+                fullscreen = no
+            - fullscreen:
+                fullscreen  = yes
+        variants:
             - RHEL:
+                video_binary = totem
                 variants:
-                    # This is current solution of handling
-                    # multiple guests running exact same OS
                     -6.3.x86_64:
                         image_name_vm2 = rhel63-64_client
+
                     -6.3.i386:
                         image_name_vm2 = rhel63-32_client
 
-
-    - rv_connect_win:
-        type = rv_connect
+    - rv_video_close: rv_video
+        type = rv_video_close
         vms = vm1 vm2
         guest_vm = vm1
         client_vm = vm2
@@ -2692,10 +2724,11 @@ variants:
         virtio_port_type_vm1 = "serialport"
         virtio_port_chardev_vm1 = "spicevmc"
         virtio_port_name_prefix_vm1 = "com.redhat.spice."
-
+        vga_vm2 = cirrus
 
         variants:
             - RHEL:
+                video_binary = totem
                 variants:
                     # This is current solution of handling
                     # multiple guests running exact same OS
@@ -2703,7 +2736,6 @@ variants:
                         image_name_vm2 = rhel63-64_client
                     -6.3.i386:
                         image_name_vm2 = rhel63-32_client
-
 
     - kernel_install:
         only Linux
@@ -2757,12 +2789,31 @@ variants:
         variants:
             - RHEL:
                 variants:
-                    # This is current solution of handling
-                    # multiple guests running exact same OS
                     -6.3.x86_64:
                         image_name_vm2 = rhel63-64_client
                     -6.3.i386:
                         image_name_vm2 = rhel63-32_client
+            - Fedora:
+                variants:
+                    -17.64:
+                        image_name_vm2 = 17-64_client
+                    -17.32:
+                        image_name_vm2 = 17-32_client
+            - Windows:
+                os_type_vm2 = linux
+                shell_prompt_vm2 = ^\[.*\][\#\$]\s*$
+                shell_client_vm2 = ssh
+                username_vm2 = root
+                shell_port_vm2 = 22
+                status_test_command_vm2 = echo $?
+
+                variants:
+                    - RHEL:
+                        variants:
+                            -6.3.x86_64:
+                                image_name_vm2 = rhel63-64_client
+                            -6.3.i386:
+                                image_name_vm2 = rhel63-32_client
 
     - seabios: install setup image_copy unattended_install.cdrom
         type = seabios
